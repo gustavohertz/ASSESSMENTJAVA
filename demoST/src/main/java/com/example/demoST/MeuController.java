@@ -1,9 +1,6 @@
 package com.example.demoST;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +10,11 @@ import java.util.List;
 @RequestMapping("/api")
 public class MeuController {
 
-    @Autowired
-    private MeuService meuService;
+    private final MeuService meuService;
+
+    public MeuController(MeuService meuService) {
+        this.meuService = meuService;
+    }
 
     @PostMapping("/endpointPost")
     public ResponseEntity<String> endpointPost(@RequestBody MeuRequest request) {
@@ -44,7 +44,12 @@ public class MeuController {
 
     @GetMapping("/consumirApiExterna")
     public ResponseEntity<String> consumirApiExterna() {
-        meuService.consumirApiExterna();
-        return ResponseEntity.ok("API externa consumida com sucesso");
+        try {
+            meuService.consumirApiExterna();
+            return ResponseEntity.ok("API externa consumida com sucesso");
+        } catch (ApiExternaException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao consumir a API externa: " + e.getMessage());
+        }
     }
 }
