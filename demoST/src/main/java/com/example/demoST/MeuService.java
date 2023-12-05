@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @Slf4j
 public class MeuService {
@@ -29,16 +30,16 @@ public class MeuService {
         log.info("Requisição PUT processada para o ID: {}", id);
     }
 
-    public void consumirApiExterna() {
+    public void consumirApiExterna() throws ApiExternaException {
         String apiUrl = "https://pokeapi.co/api/v2/pokemon/pikachu";
-        RestTemplate restTemplate = new RestTemplate();
 
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-            log.info("Status code da resposta da API externa: {}", response.getStatusCodeValue());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Pokemon pokemon = objectMapper.readValue(response.getBody(), Pokemon.class);
+            WebClient client = WebClient.create();
+            Pokemon pokemon = client.get()
+                    .uri(apiUrl)
+                    .retrieve()
+                    .bodyToMono(Pokemon.class)
+                    .block();
 
             log.info("Nome do Pokémon: {}", pokemon.getName());
             log.info("Altura do Pokémon: {}", pokemon.getHeight());
@@ -48,7 +49,9 @@ public class MeuService {
             }
         } catch (Exception e) {
             log.error("Erro ao consumir a API externa", e);
+            throw new ApiExternaException("Erro ao consumir a API externa", e);
         }
     }
 }
+
 
