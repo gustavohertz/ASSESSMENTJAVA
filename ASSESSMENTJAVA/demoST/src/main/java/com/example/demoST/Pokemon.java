@@ -1,76 +1,34 @@
 package com.example.demoST;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Data;
+
 import java.util.List;
 
+
+@Data@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Pokemon {
+    @JsonProperty("id")
     private Long id;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("height")
     private int height;
-    private List<Move> moves;
+    @JsonProperty("abilities")
+    private List abilities;
 
-    public Pokemon(String name, int height, List<Move> moves) {
-        this.name = name;
-        this.height = height;
-        this.moves = moves;
-    }
-
-    // Getters e Setters
-    public String getName() {
-
-        return name;
-    }
-
-    public void setName(String name) {
-
-        this.name = name;
-    }
-
-    public int getHeight() {
-
-        return height;
-    }
-
-    public void setHeight(int height) {
-
-        this.height = height;
-    }
-
-    public List<Move> getMoves() {
-
-        return moves;
-    }
-
-    public void setMoves(List<Move> moves) {
-
-        this.moves = moves;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public Pokemon(Long id, String name, int height, List<String> abilities) {
         this.id = id;
+        this.name = name;
+        this.height = height;
+        this.abilities = abilities;
     }
 
+    public Pokemon(){
 
-    public static class Move {
-        private String name;
-
-
-        public Move(String name) {
-
-            this.name = name;
-        }
-
-        public String getName() {
-
-            return name;
-        }
-
-        public void setName(String name) {
-
-            this.name = name;
-        }
     }
+
 }

@@ -3,49 +3,58 @@ package com.example.demoST;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Service
 public class PokemonService {
 
-    private final List<Pokemon> pokemonList = new ArrayList<>();
+    private Map<Long, Pokemon> pokemons = iniciarPokes();
+    private long lastId = pokemons.size();
 
-    public void createPokemon(Pokemon pokemon) {
-        // Lógica para criar um novo Pokemon
-        pokemonList.add(pokemon);
+    private Map<Long, Pokemon> iniciarPokes() {
+        Map<Long, Pokemon> pokemons = new HashMap<>();
+        for(int i=1; i<=151; i++){
+            PokeUtil pokeUtil = new PokeUtil();
+            Pokemon pokemon = pokeUtil.getPokemon((long)i);
+            pokemons.put((long)i,pokemon);
+        }
+        return pokemons;
+    }
+    public void create(Pokemon pokemon) {
+        Long id = ++this.lastId;
+        pokemon.setId(id);
+        pokemons.put(id,pokemon);
     }
 
     public List<Pokemon> getAllPokemon() {
-        // Lógica para obter todos os Pokemon
-        return pokemonList;
+        return pokemons.values().stream().toList();
     }
 
-    public Pokemon getPokemonById(Long id) {
-        return pokemonList.stream()
-                .filter(pokemon -> Objects.equals(pokemon.getId(), id))
-                .findFirst()
-                .orElse(null);
+   public Pokemon getPokemonById(Long id) {
+return pokemons.get(id);
+
     }
 
-    public void updatePokemon(Long id, Pokemon updatedPokemon) {
-        Pokemon existingPokemon = getPokemonById(id);
-        if (existingPokemon != null) {
-            existingPokemon.setName(updatedPokemon.getName());
-            existingPokemon.setHeight(updatedPokemon.getHeight());
-            existingPokemon.setMoves(updatedPokemon.getMoves());
-        } else {
-            // Adicione lógica para tratar o caso em que o Pokemon não foi encontrado
+     public void update(long id, Pokemon atualizado) {
+        atualizado.setId(id);
+        pokemons.replace(id,atualizado);
+    }
+
+
+    public void deleteById(long id) {
+        Pokemon pokemon = pokemons.remove(id);
+        if (pokemon == null){
             try {
-                throw new PokemonNotFoundException("Pokemon não encontrado para o ID: " + id);
-            } catch (PokemonNotFoundException e) {
+                throw new ResorceNotFoundException("Pokemon não existe");
+            } catch (ResorceNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-
-    public void deletePokemon(Long id) {
-        pokemonList.removeIf(pokemon -> Objects.equals(pokemon.getId(), id));
+    public List<Pokemon> filterByName(String nome) {
+        List<Pokemon> all = getAllPokemon();
+        return all.stream().filter(pokemon -> pokemon.getName().startsWith(nome)).toList();
     }
-
 }
